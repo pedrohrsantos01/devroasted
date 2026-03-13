@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-mono:
+    var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@theme {
+  --color-accent-green: #10b981;
+  --color-page: #0a0a0a;
+  --color-surface: #0f0f0f;
+  --color-border-focus: #10b981;
+  --color-border-primary: #2a2a2a;
+  --color-critical: #ef4444;
+  --color-destructive: #d93c15;
+  --color-diff-added: #0a1a0f;
+  --color-diff-removed: #1a0a0a;
+  --color-foreground: #111111;
+  --color-secondary: #e7e8e5;
+  --color-surface-code: #111111;
+  --color-surface-panel: #0f0f0f;
+  --color-muted: #6b7280;
+  --color-foreground-inverse: #fafafa;
+  --color-subtle: #4b5563;
+  --color-warning: #f59e0b;
+  --color-white: #ffffff;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-white text-foreground;
+  }
+}
+
+@layer components {
+  .code-block-content pre {
+    background-color: transparent;
+    margin: 0;
+    overflow-x: visible;
+    padding: 0;
+  }
+
+  .code-block-content code {
+    display: block;
+    min-width: max-content;
+    padding: 0.75rem 0;
+  }
+
+  .code-block-content .code-block-line {
+    display: block;
+    line-height: 1.5rem;
+    min-height: 1.5rem;
+    padding-right: 0.75rem;
+    position: relative;
+  }
+
+  .code-block-content[data-line-numbers="true"] .code-block-line {
+    padding-left: 3.25rem;
+  }
+
+  .code-block-content[data-line-numbers="true"] .code-block-line::before {
+    border-right: 1px solid var(--color-border-primary);
+    color: var(--color-subtle);
+    content: attr(data-line);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    inset: 0 auto 0 0;
+    padding-right: 0.625rem;
+    position: absolute;
+    text-align: right;
+    width: 2.5rem;
+  }
+}
