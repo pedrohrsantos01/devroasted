@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { MAX_SNIPPET_CHARACTERS } from "@/components/home/editor-snippet-constraints";
 import { HomeCodeEditor } from "@/components/home/home-code-editor";
@@ -11,7 +12,11 @@ import {
   ToggleThumb,
 } from "@/components/ui";
 
-export function HomeHero() {
+interface HomeHeroProps {
+  children?: ReactNode;
+}
+
+export function HomeHero({ children }: HomeHeroProps) {
   const [snippet, setSnippet] = useState("");
   const isSendDisabled = useMemo(() => {
     return (
@@ -60,11 +65,7 @@ export function HomeHero() {
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-4 font-sans text-[12px] text-subtle">
-        <span>2,847 codes roasted</span>
-        <span className="font-mono">.</span>
-        <span>avg score: 4.2/10</span>
-      </div>
+      {children}
     </section>
   );
 }

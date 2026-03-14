@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
-
+import { AppProviders } from "@/app/providers";
 import { SiteHeader } from "@/components/layout/site-header";
 
 import "./globals.css";
@@ -24,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${jetbrainsMono.variable} h-full antialiased`}>
       <body className="h-full font-sans">
-        <div className="min-h-full">
-          <SiteHeader />
-          {children}
-        </div>
+        <AppProviders>
+          <div className="min-h-full">
+            <SiteHeader />
+            {children}
+          </div>
+        </AppProviders>
       </body>
     </html>
   );
