@@ -7,25 +7,6 @@ import {
   ToggleThumb,
 } from "@/components/ui";
 
-const heroCode = [
-  "function calculateTotal(items) {",
-  "  var total = 0;",
-  "  for (var i = 0; i < items.length; i++) {",
-  "    total = total + items[i].price;",
-  "  }",
-  "",
-  "  if (total > 100) {",
-  '    console.log("discount applied");',
-  "    total = total * 0.9;",
-  "  }",
-  "",
-  "  // TODO: handle tax calculation",
-  "  // TODO: handle currency conversion",
-  "",
-  "  return total;",
-  "}",
-].join("\n");
-
 export function HomeHero() {
   return (
     <section className="flex flex-col items-center gap-8 text-center">
@@ -42,10 +23,7 @@ export function HomeHero() {
         </p>
       </div>
 
-      <HomeCodeEditor
-        className="w-full max-w-[780px]"
-        defaultValue={heroCode}
-      />
+      <HomeCodeEditor className="w-full max-w-[780px]" />
 
       <div className="flex w-full max-w-[780px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
