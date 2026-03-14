@@ -327,17 +327,32 @@ export default function ComponentsPage() {
               </ShowcaseSection.Title>
               <ShowcaseSection.Description>
                 The code block is rendered only on the server with Shiki using
-                the `vesper` theme, plus a reusable file header and optional
-                line numbers.
+                the `vesper` theme, with optional line numbers and local shell
+                chrome when a screen needs it.
               </ShowcaseSection.Description>
             </ShowcaseSection.Header>
 
             <ShowcaseSection.Body>
               <CodeBlock.Root>
-                <CodeBlock.Header>
-                  <CodeBlock.TrafficLights />
-                  <CodeBlock.Filename>calculate.js</CodeBlock.Filename>
-                </CodeBlock.Header>
+                <div className="flex h-10 items-center gap-3 border-b border-border-primary px-4">
+                  <div className="flex items-center gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="size-2.5 rounded-full bg-critical"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="size-2.5 rounded-full bg-warning"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="size-2.5 rounded-full bg-accent-green"
+                    />
+                  </div>
+                  <span className="ml-auto font-mono text-[12px] text-subtle">
+                    calculate.js
+                  </span>
+                </div>
                 <CodeBlock.Content lang="javascript">
                   {showcaseCode}
                 </CodeBlock.Content>

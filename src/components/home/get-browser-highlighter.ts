@@ -86,7 +86,7 @@ export async function highlightSnippet(
       {
         pre(node) {
           node.properties.style =
-            "background-color: transparent; margin: 0; min-height: 360px; overflow-x: visible; padding: 0;";
+            "background-color: transparent; margin: 0; min-height: 420px; overflow-x: visible; padding: 0;";
         },
         line(node, line) {
           this.addClassToHast(node, "editor-preview-line");

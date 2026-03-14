@@ -1,3 +1,7 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { MAX_SNIPPET_CHARACTERS } from "@/components/home/editor-snippet-constraints";
 import { HomeCodeEditor } from "@/components/home/home-code-editor";
 import {
   Button,
@@ -8,6 +12,13 @@ import {
 } from "@/components/ui";
 
 export function HomeHero() {
+  const [snippet, setSnippet] = useState("");
+  const isSendDisabled = useMemo(() => {
+    return (
+      snippet.trim().length === 0 || snippet.length > MAX_SNIPPET_CHARACTERS
+    );
+  }, [snippet]);
+
   return (
     <section className="flex flex-col items-center gap-8 text-center">
       <div className="flex flex-col items-center gap-3">
@@ -23,7 +34,10 @@ export function HomeHero() {
         </p>
       </div>
 
-      <HomeCodeEditor className="w-full max-w-[780px]" />
+      <HomeCodeEditor
+        className="w-full max-w-[780px]"
+        onCodeChange={setSnippet}
+      />
 
       <div className="flex w-full max-w-[780px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
@@ -38,7 +52,10 @@ export function HomeHero() {
           </span>
         </div>
 
-        <Button className="focus-visible:ring-offset-page">
+        <Button
+          className="focus-visible:ring-offset-page"
+          disabled={isSendDisabled}
+        >
           $ roast_my_code
         </Button>
       </div>

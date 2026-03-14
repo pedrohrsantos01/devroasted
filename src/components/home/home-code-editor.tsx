@@ -12,6 +12,10 @@ import {
   getEditorLanguageLabel,
   type SupportedLanguageId,
 } from "@/components/home/editor-language-registry";
+import {
+  formatSnippetCharacterCount,
+  MAX_SNIPPET_CHARACTERS,
+} from "@/components/home/editor-snippet-constraints";
 import { warmBrowserHighlighter } from "@/components/home/get-browser-highlighter";
 import { HomeCodeLanguageSelect } from "@/components/home/home-code-language-select";
 import { PastedCodePreview } from "@/components/home/pasted-code-preview";
@@ -23,13 +27,17 @@ type EditorPhase = "empty" | "filled";
 export interface HomeCodeEditorProps {
   className?: string;
   defaultValue?: string;
+  maxCharacters?: number;
   minLines?: number;
+  onCodeChange?: (code: string) => void;
 }
 
 export function HomeCodeEditor({
   className,
   defaultValue = "",
+  maxCharacters = MAX_SNIPPET_CHARACTERS,
   minLines = 16,
+  onCodeChange,
 }: HomeCodeEditorProps) {
   const [code, setCode] = useState(defaultValue);
   const [detectedLanguage, setDetectedLanguage] =
@@ -48,10 +56,18 @@ export function HomeCodeEditor({
 
   const selectedLanguage = manualLanguage ?? detectedLanguage;
   const hasSnippet = code.trim().length > 0;
+  const characterCount = code.length;
+  const isOverCharacterLimit = characterCount > maxCharacters;
+  const formattedCharacterCount = formatSnippetCharacterCount(characterCount);
+  const formattedMaxCharacters = formatSnippetCharacterCount(maxCharacters);
 
   useEffect(() => {
     warmBrowserHighlighter();
   }, []);
+
+  useEffect(() => {
+    onCodeChange?.(code);
+  }, [code, onCodeChange]);
 
   useEffect(() => {
     if (!hasSnippet) {
@@ -193,7 +209,7 @@ export function HomeCodeEditor({
       </div>
 
       {phase === "filled" ? (
-        <div className="flex min-h-[360px] flex-col">
+        <div className="flex min-h-[420px] flex-col">
           <div className="border-b border-border-primary px-4 py-3 text-left font-sans text-[12px] text-subtle">
             {manualLanguage === null ? (
               isDetectingLanguage ? (
@@ -217,50 +233,75 @@ export function HomeCodeEditor({
           </div>
 
           <PastedCodePreview code={code} language={selectedLanguage} />
+
+          <div className="flex min-h-10 items-center justify-between gap-3 border-t border-border-primary px-4 py-2 font-sans text-[11px] text-subtle">
+            <span className={isOverCharacterLimit ? "text-warning" : undefined}>
+              {isOverCharacterLimit
+                ? `snippet exceeds the ${formattedMaxCharacters} character roast limit`
+                : ""}
+            </span>
+            <span
+              className={cn(
+                "ml-auto font-mono",
+                isOverCharacterLimit ? "text-warning" : "text-subtle",
+              )}
+            >
+              {formattedCharacterCount} / {formattedMaxCharacters} chars
+            </span>
+          </div>
         </div>
       ) : (
-        <div className="flex min-h-[360px] overflow-hidden">
-          <div
-            aria-hidden="true"
-            className="w-12 shrink-0 overflow-hidden border-r border-border-primary bg-surface px-3 py-4 text-right font-mono text-[12px] leading-7 text-subtle select-none"
-          >
-            {lineNumbers.map((lineNumber) => (
-              <div key={lineNumber} className="h-7">
-                {lineNumber}
-              </div>
-            ))}
-          </div>
+        <div className="flex min-h-[420px] flex-col">
+          <div className="flex h-[420px] min-h-[420px] max-h-[420px] overflow-hidden">
+            <div
+              aria-hidden="true"
+              className="w-12 shrink-0 overflow-hidden border-r border-border-primary bg-surface px-3 py-4 text-right font-mono text-[12px] leading-7 text-subtle select-none"
+            >
+              {lineNumbers.map((lineNumber) => (
+                <div key={lineNumber} className="h-7">
+                  {lineNumber}
+                </div>
+              ))}
+            </div>
 
-          <div className="relative flex-1">
-            <textarea
-              ref={pasteTargetRef}
-              aria-label="Paste code here"
-              autoCapitalize="off"
-              autoComplete="off"
-              autoCorrect="off"
-              className="h-full min-h-[360px] w-full resize-none overflow-auto bg-transparent p-4 font-mono text-[12px] leading-7 text-foreground-inverse caret-accent-green outline-none"
-              onChange={() => {}}
-              onDrop={handleDrop}
-              onKeyDown={handlePasteSurfaceKeyDown}
-              onPaste={handlePaste}
-              placeholder=""
-              spellCheck={false}
-              value=""
-              wrap="off"
-            />
+            <div className="relative flex-1">
+              <textarea
+                ref={pasteTargetRef}
+                aria-label="Paste code here"
+                autoCapitalize="off"
+                autoComplete="off"
+                autoCorrect="off"
+                className="h-full min-h-[420px] w-full resize-none overflow-auto bg-transparent p-4 font-mono text-[12px] leading-7 text-foreground-inverse caret-accent-green outline-none"
+                onChange={() => {}}
+                onDrop={handleDrop}
+                onKeyDown={handlePasteSurfaceKeyDown}
+                onPaste={handlePaste}
+                placeholder=""
+                spellCheck={false}
+                value=""
+                wrap="off"
+              />
 
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-8 py-10 text-center">
-              <div className="max-w-[420px] space-y-3">
-                <p className="font-mono text-sm text-foreground-inverse">
-                  paste your code here
-                </p>
-                <p className="font-sans text-[12px] leading-6 text-subtle">
-                  This area is paste-first. Drop a snippet with Ctrl/Cmd+V and
-                  we will auto-detect the language, then render a read-only
-                  highlighted preview.
-                </p>
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-8 py-10 text-center">
+                <div className="max-w-[420px] space-y-3">
+                  <p className="font-mono text-sm text-foreground-inverse">
+                    paste your code here
+                  </p>
+                  <p className="font-sans text-[12px] leading-6 text-subtle">
+                    This area is paste-first. Drop a snippet with Ctrl/Cmd+V and
+                    we will auto-detect the language, then render a read-only
+                    highlighted preview.
+                  </p>
+                </div>
               </div>
             </div>
+          </div>
+
+          <div className="flex min-h-10 items-center justify-between gap-3 border-t border-border-primary px-4 py-2 font-sans text-[11px] text-subtle">
+            <span />
+            <span className="ml-auto font-mono text-subtle">
+              {formattedCharacterCount} / {formattedMaxCharacters} chars
+            </span>
           </div>
         </div>
       )}

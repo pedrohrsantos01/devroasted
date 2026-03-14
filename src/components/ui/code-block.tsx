@@ -55,54 +55,6 @@ export function CodeBlockRoot({ className, ...props }: CodeBlockRootProps) {
   );
 }
 
-export interface CodeBlockHeaderProps extends ComponentPropsWithoutRef<"div"> {}
-
-export function CodeBlockHeader({ className, ...props }: CodeBlockHeaderProps) {
-  return (
-    <div
-      className={cn(
-        "flex h-10 items-center gap-3 border-b border-border-primary px-4",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-export interface CodeBlockTrafficLightsProps
-  extends ComponentPropsWithoutRef<"div"> {}
-
-export function CodeBlockTrafficLights({
-  className,
-  ...props
-}: CodeBlockTrafficLightsProps) {
-  return (
-    <div className={cn("flex items-center gap-3", className)} {...props}>
-      <span aria-hidden="true" className="size-2.5 rounded-full bg-critical" />
-      <span aria-hidden="true" className="size-2.5 rounded-full bg-warning" />
-      <span
-        aria-hidden="true"
-        className="size-2.5 rounded-full bg-accent-green"
-      />
-    </div>
-  );
-}
-
-export interface CodeBlockFilenameProps
-  extends ComponentPropsWithoutRef<"span"> {}
-
-export function CodeBlockFilename({
-  className,
-  ...props
-}: CodeBlockFilenameProps) {
-  return (
-    <span
-      className={cn("ml-auto font-mono text-[12px] text-subtle", className)}
-      {...props}
-    />
-  );
-}
-
 export interface CodeBlockContentProps
   extends Omit<ComponentPropsWithoutRef<"div">, "children"> {
   children: string;
@@ -137,8 +89,5 @@ export async function CodeBlockContent({
 
 export const CodeBlock = {
   Content: CodeBlockContent,
-  Filename: CodeBlockFilename,
-  Header: CodeBlockHeader,
   Root: CodeBlockRoot,
-  TrafficLights: CodeBlockTrafficLights,
 };

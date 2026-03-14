@@ -59,7 +59,12 @@ export function PastedCodePreview({
   }, [code, fallbackHtml, language]);
 
   return (
-    <div className={cn("relative h-full min-h-[360px]", className)}>
+    <div
+      className={cn(
+        "relative h-[420px] min-h-[420px] max-h-[420px] overflow-hidden",
+        className,
+      )}
+    >
       {isRendering ? (
         <div className="pointer-events-none absolute right-4 top-4 z-10 rounded-full border border-border-primary bg-page/80 px-3 py-1 font-sans text-[11px] text-subtle backdrop-blur-sm">
           highlighting...
