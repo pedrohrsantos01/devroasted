@@ -14,7 +14,10 @@ const roastFindingSchema = z
       value.lineStart === undefined ||
       value.lineEnd === undefined ||
       value.lineEnd >= value.lineStart,
-    { message: "lineEnd must be greater than or equal to lineStart" },
+    {
+      message: "lineEnd must be greater than or equal to lineStart",
+      path: ["lineEnd"],
+    },
   );
 
 export const roastAnalysisSchema = z.object({
