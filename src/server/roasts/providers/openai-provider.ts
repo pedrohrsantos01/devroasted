@@ -10,12 +10,16 @@ import type { RoastAnalysisProvider } from "@/server/roasts/providers/provider";
 
 const DEFAULT_MODEL = "gpt-4o-2024-08-06";
 
+export function resolveOpenAIModel(model?: string) {
+  return model ?? process.env.OPENAI_MODEL ?? DEFAULT_MODEL;
+}
+
 export function createOpenAIRoastAnalysisProvider(input?: {
   client?: OpenAI;
   model?: string;
 }): RoastAnalysisProvider {
   const client = input?.client ?? new OpenAI();
-  const model = input?.model ?? process.env.OPENAI_ROAST_MODEL ?? DEFAULT_MODEL;
+  const model = resolveOpenAIModel(input?.model);
 
   return {
     async analyze(analysisInput) {

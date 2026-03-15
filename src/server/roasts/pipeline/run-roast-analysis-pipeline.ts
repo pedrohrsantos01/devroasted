@@ -105,6 +105,7 @@ async function persistCompletedRoast(input: {
         completedAt: now,
         improvedCode: input.analysis.improvedCode,
         meta: null,
+        publishedAt: now,
         score: input.analysis.score.toFixed(1),
         status: "completed",
         summary: input.analysis.summary,

@@ -91,6 +91,7 @@ test("runRoastAnalysisPipeline persists completed output", async () => {
   assert.equal(roastUpdates[0]?.summary, "Pretty good, but still roastable.");
   assert.equal(roastUpdates[0]?.score, "7.4");
   assert.equal(typeof roastUpdates[0]?.completedAt, "object");
+  assert.equal(typeof roastUpdates[0]?.publishedAt, "object");
 });
 
 test("runRoastAnalysisPipeline marks the roast failed when findings exceed lineCount", async () => {
