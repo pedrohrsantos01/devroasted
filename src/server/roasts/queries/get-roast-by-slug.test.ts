@@ -3,6 +3,8 @@ import test from "node:test";
 
 import { getRoastBySlug } from "@/server/roasts/queries/get-roast-by-slug";
 
+const createdAt = new Date("2026-03-15T12:00:00.000Z");
+
 function createDb(input: {
   findings?: ReadonlyArray<Record<string, unknown>>;
   roast: Record<string, unknown> | null;
@@ -24,6 +26,7 @@ test("getRoastBySlug maps queued roasts to processing", async () => {
     db: createDb({
       roast: {
         id: "roast-queued",
+        createdAt,
         language: "typescript",
         mode: "roast",
         originalCode: "const answer = 42;",
@@ -35,6 +38,7 @@ test("getRoastBySlug maps queued roasts to processing", async () => {
   });
 
   assert.deepEqual(result, {
+    createdAt,
     language: "typescript",
     mode: "roast",
     originalCode: "const answer = 42;",
@@ -47,6 +51,7 @@ test("getRoastBySlug maps persisted processing roasts to processing", async () =
     db: createDb({
       roast: {
         id: "roast-processing",
+        createdAt,
         language: "javascript",
         mode: "honest",
         originalCode: "console.log('still cooking');",
@@ -58,6 +63,7 @@ test("getRoastBySlug maps persisted processing roasts to processing", async () =
   });
 
   assert.deepEqual(result, {
+    createdAt,
     language: "javascript",
     mode: "honest",
     originalCode: "console.log('still cooking');",
@@ -86,6 +92,7 @@ test("getRoastBySlug maps completed roasts to the full result payload", async ()
       ],
       roast: {
         id: "roast-completed",
+        createdAt,
         improvedCode: "const answer = 42;\nconsole.log(answer);",
         language: "typescript",
         mode: "honest",
@@ -101,6 +108,7 @@ test("getRoastBySlug maps completed roasts to the full result payload", async ()
   });
 
   assert.deepEqual(result, {
+    createdAt,
     findings: [
       {
         description: "The answer never gets used after assignment.",
@@ -133,6 +141,7 @@ test("getRoastBySlug maps failed roasts to a friendly failure payload", async ()
     db: createDb({
       roast: {
         id: "roast-failed",
+        createdAt,
         language: "typescript",
         mode: "roast",
         originalCode: "const answer = 42;",
@@ -144,6 +153,7 @@ test("getRoastBySlug maps failed roasts to a friendly failure payload", async ()
   });
 
   assert.deepEqual(result, {
+    createdAt,
     language: "typescript",
     mode: "roast",
     originalCode: "const answer = 42;",

@@ -1,4 +1,5 @@
 import type { RoastProcessingResult } from "@/components/roast-result/roast-result-types";
+import { RoastStatusPoller } from "@/components/roast-result/roast-status-poller";
 
 import { RoastResultShell } from "./roast-result-view";
 
@@ -37,9 +38,12 @@ export function RoastProcessingState({
       badgeText="verdict: processing"
       badgeTone="neutral"
       heroContent={
-        <h1 className="max-w-4xl font-mono text-xl leading-8 text-foreground-inverse md:text-[20px]">
-          The roast is still warming up. We are analyzing the snippet now.
-        </h1>
+        <div className="flex max-w-4xl flex-col gap-4">
+          <h1 className="font-mono text-xl leading-8 text-foreground-inverse md:text-[20px]">
+            The roast is still warming up. We are analyzing the snippet now.
+          </h1>
+          <RoastStatusPoller createdAt={roast.createdAt} />
+        </div>
       }
       language={roast.language}
       mode={roast.mode}

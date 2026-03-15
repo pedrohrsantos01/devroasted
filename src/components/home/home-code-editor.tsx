@@ -30,6 +30,7 @@ export interface HomeCodeEditorProps {
   maxCharacters?: number;
   minLines?: number;
   onCodeChange?: (code: string) => void;
+  onLanguageChange?: (language: SupportedLanguageId) => void;
 }
 
 export function HomeCodeEditor({
@@ -38,6 +39,7 @@ export function HomeCodeEditor({
   maxCharacters = MAX_SNIPPET_CHARACTERS,
   minLines = 16,
   onCodeChange,
+  onLanguageChange,
 }: HomeCodeEditorProps) {
   const [code, setCode] = useState(defaultValue);
   const [detectedLanguage, setDetectedLanguage] =
@@ -68,6 +70,10 @@ export function HomeCodeEditor({
   useEffect(() => {
     onCodeChange?.(code);
   }, [code, onCodeChange]);
+
+  useEffect(() => {
+    onLanguageChange?.(selectedLanguage);
+  }, [onLanguageChange, selectedLanguage]);
 
   useEffect(() => {
     if (!hasSnippet) {

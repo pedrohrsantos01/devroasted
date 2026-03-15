@@ -17,6 +17,7 @@ export interface RoastResultFinding {
 }
 
 interface RoastResultBase {
+  createdAt: Date;
   language: typeof roasts.$inferSelect.language;
   mode: typeof roasts.$inferSelect.mode;
   originalCode: string;

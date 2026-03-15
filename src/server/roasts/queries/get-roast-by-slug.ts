@@ -13,6 +13,7 @@ export async function getRoastBySlug(input: {
 }): Promise<RoastResultState | null> {
   const roast = await input.db.query.roasts.findFirst({
     columns: {
+      createdAt: true,
       id: true,
       improvedCode: true,
       language: true,
@@ -38,6 +39,7 @@ export async function getRoastBySlug(input: {
       language: roast.language,
       mode: roast.mode,
       originalCode: roast.originalCode,
+      createdAt: roast.createdAt,
       status: "processing",
     };
   }
@@ -47,6 +49,7 @@ export async function getRoastBySlug(input: {
       language: roast.language,
       mode: roast.mode,
       originalCode: roast.originalCode,
+      createdAt: roast.createdAt,
       status: "failed",
       summary: FAILED_SUMMARY,
       title: FAILED_TITLE,
@@ -63,6 +66,7 @@ export async function getRoastBySlug(input: {
       language: roast.language,
       mode: roast.mode,
       originalCode: roast.originalCode,
+      createdAt: roast.createdAt,
       status: "failed",
       summary: FAILED_SUMMARY,
       title: FAILED_TITLE,
@@ -93,6 +97,7 @@ export async function getRoastBySlug(input: {
     language: roast.language,
     mode: roast.mode,
     originalCode: roast.originalCode,
+    createdAt: roast.createdAt,
     score: Number(roast.score),
     status: "completed",
     summary: roast.summary,

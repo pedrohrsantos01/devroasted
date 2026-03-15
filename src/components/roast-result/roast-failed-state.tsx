@@ -1,5 +1,13 @@
+import Link from "next/link";
+
 import type { RoastFailedResult } from "@/components/roast-result/roast-result-types";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui";
+import {
+  buttonVariants,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui";
 
 import { RoastResultShell } from "./roast-result-view";
 
@@ -29,6 +37,18 @@ export function RoastFailedState({ roast }: { roast: RoastFailedResult }) {
           <p className="max-w-3xl font-sans text-[14px] leading-7 text-muted">
             {roast.summary}
           </p>
+          <div>
+            <Link
+              className={buttonVariants({
+                className: "focus-visible:ring-offset-page",
+                size: "sm",
+                variant: "outline",
+              })}
+              href="/"
+            >
+              $ roast_another_snippet
+            </Link>
+          </div>
         </>
       }
       language={roast.language}
