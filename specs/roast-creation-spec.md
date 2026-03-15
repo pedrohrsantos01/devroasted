@@ -22,6 +22,7 @@
 - Next.js App Router fetching/loading docs: `https://nextjs.org/docs/app/getting-started/fetching-data`
 - Next.js `loading.js` and Suspense docs: `https://nextjs.org/docs/app/api-reference/file-conventions/loading`
 - tRPC TanStack React Query + Server Components docs: `https://trpc.io/docs/client/tanstack-react-query/server-components`
+- Google Gen AI JS SDK docs: `https://github.com/googleapis/js-genai/blob/main/docs/index.html`
 
 ## Current project context
 
@@ -57,6 +58,8 @@
 - A pagina de resultado deve seguir o modelo do App Router com loading UI orientada a Suspense e streaming, alinhado com a documentacao oficial do Next.js.
 - A leitura e o polling do roast devem continuar usando o contrato do tRPC no App Router, alinhado com a integracao oficial de TanStack React Query + Server Components.
 - O contrato de integracao com IA deve ficar atras de um adaptador server-side para preservar a possibilidade de trocar provedor sem alterar homepage, rota publica ou shape de resposta.
+- O pipeline deve escolher o provedor por variavel de ambiente, com `gemini` como padrao e `openai` como fallback.
+- O adaptador Gemini deve usar saida JSON estruturada e validar o payload final no contrato existente de roast analysis.
 
 ## Recommendation
 
@@ -66,6 +69,7 @@
 - Manter o contrato da pagina de resultado orientado a estado, para simplificar UI e polling.
 - Manter a pagina principalmente server-first, com um leaf client pequeno para polling e atualizacao de status, seguindo o uso de Suspense e boundaries recomendado no App Router.
 - Manter o tRPC como contrato typesafe entre homepage, pagina de resultado e camada server, sem criar um fetch ad-hoc paralelo.
+- Introduzir uma factory server-side para selecionar `gemini` ou `openai` sem mudar o contrato `RoastAnalysisProvider`.
 
 ## Implementation shape
 
@@ -75,7 +79,8 @@
   - redirecionar imediatamente para `/roasts/[slug]`
 - Pipeline:
   - reivindicar trabalho pendente
-  - executar analise de IA
+  - escolher o provider por `ROAST_PROVIDER`
+  - executar analise de IA com Gemini como padrao e OpenAI como fallback
   - persistir score, resumo, findings e improved code
   - finalizar em `completed` ou `failed`
 - Result page:
@@ -99,6 +104,7 @@
 
 - `README.md`
 - `specs/roast-creation-spec.md`
+- `package.json`
 - `src/app/roasts/[slug]/page.tsx`
 - `src/components/home/home-hero.tsx`
 - `src/components/roast-result/*`
@@ -110,6 +116,7 @@
 - Falhas de provedor ou schema invalido precisam cair em `failed`, sem expor detalhes internos ao usuario.
 - Se o processamento ficar preso, a pagina precisa continuar refletindo `processing` sem fingir sucesso.
 - Como o fluxo depende de banco e credenciais reais, verificacoes locais podem falhar por ambiente e nao por regressao funcional.
+- A troca de provedor nao pode quebrar o fallback OpenAI nem sobrescrever o ajuste local do modelo padrao para `gpt-4o-mini`.
 
 ## TODO
 
@@ -118,3 +125,4 @@
 - [x] Registrar o processamento assincrono persistido.
 - [x] Definir os estados `processing`, `completed` e `failed`.
 - [x] Deixar `share roast` fora do escopo.
+- [x] Documentar Gemini como provider padrao e OpenAI como fallback via `ROAST_PROVIDER`.

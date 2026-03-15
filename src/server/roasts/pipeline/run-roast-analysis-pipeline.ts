@@ -2,8 +2,8 @@ import { and, eq } from "drizzle-orm";
 
 import { roastFindings, roasts } from "@/db/schema";
 import type { RoastAnalysis } from "@/server/roasts/analysis-contract";
-import { createOpenAIRoastAnalysisProvider } from "@/server/roasts/providers/openai-provider";
 import type { RoastAnalysisProvider } from "@/server/roasts/providers/provider";
+import { createRoastAnalysisProvider } from "@/server/roasts/providers/provider-factory";
 
 let defaultProvider: RoastAnalysisProvider | undefined;
 
@@ -53,7 +53,7 @@ function getProvider(provider?: RoastAnalysisProvider) {
     return provider;
   }
 
-  defaultProvider ??= createOpenAIRoastAnalysisProvider();
+  defaultProvider ??= createRoastAnalysisProvider();
 
   return defaultProvider;
 }

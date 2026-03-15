@@ -28,14 +28,27 @@ Submitting from the homepage creates a roast record, redirects immediately to `/
 Create a local `.env` file with:
 
 ```bash
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-4o-2024-08-06
+ROAST_PROVIDER=gemini
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-3-flash-preview
 DATABASE_URL=postgresql://user:password@localhost:5432/devroast
 ```
 
-- `OPENAI_API_KEY` - credential used by the roast analysis pipeline
-- `OPENAI_MODEL` - OpenAI model name used for roast generation
+- `ROAST_PROVIDER` - selects the roast analysis provider; defaults to `gemini`, can be set to `openai` as a fallback
+- `GEMINI_API_KEY` - credential used by the default Gemini roast analysis pipeline
+- `GEMINI_MODEL` - optional Gemini model override; defaults to `gemini-3-flash-preview`
 - `DATABASE_URL` - PostgreSQL connection string used by the app and Drizzle
+
+Optional OpenAI fallback:
+
+```bash
+ROAST_PROVIDER=openai
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-4o-mini
+```
+
+- `OPENAI_API_KEY` - credential used when `ROAST_PROVIDER=openai`
+- `OPENAI_MODEL` - optional OpenAI model override used for the fallback provider
 
 ### Running locally
 
@@ -74,14 +87,27 @@ Ao enviar um snippet pela homepage, o app cria o registro do roast, redireciona 
 Crie um arquivo local `.env` com:
 
 ```bash
-OPENAI_API_KEY=sua_openai_api_key
-OPENAI_MODEL=gpt-4o-2024-08-06
+ROAST_PROVIDER=gemini
+GEMINI_API_KEY=sua_gemini_api_key
+GEMINI_MODEL=gemini-3-flash-preview
 DATABASE_URL=postgresql://user:password@localhost:5432/devroast
 ```
 
-- `OPENAI_API_KEY` - credencial usada pelo pipeline de analise do roast
-- `OPENAI_MODEL` - nome do modelo OpenAI usado na geracao do roast
+- `ROAST_PROVIDER` - seleciona o provedor da analise do roast; o padrao e `gemini`, com `openai` disponivel como fallback
+- `GEMINI_API_KEY` - credencial usada pelo pipeline Gemini padrao
+- `GEMINI_MODEL` - override opcional do modelo Gemini; o padrao e `gemini-3-flash-preview`
 - `DATABASE_URL` - string de conexao PostgreSQL usada pela app e pelo Drizzle
+
+Fallback opcional com OpenAI:
+
+```bash
+ROAST_PROVIDER=openai
+OPENAI_API_KEY=sua_openai_api_key
+OPENAI_MODEL=gpt-4o-mini
+```
+
+- `OPENAI_API_KEY` - credencial usada quando `ROAST_PROVIDER=openai`
+- `OPENAI_MODEL` - override opcional do modelo OpenAI usado no provedor de fallback
 
 ### Rodando localmente
 

@@ -8,7 +8,7 @@ import {
 import { buildRoastAnalysisPrompt } from "@/server/roasts/prompts";
 import type { RoastAnalysisProvider } from "@/server/roasts/providers/provider";
 
-const DEFAULT_MODEL = "gpt-4o-2024-08-06";
+const DEFAULT_MODEL = "gpt-4o-mini";
 export const OPENAI_PROVIDER_TIMEOUT_MS = 20_000;
 
 export function resolveOpenAIModel(model?: string) {
@@ -16,11 +16,14 @@ export function resolveOpenAIModel(model?: string) {
 }
 
 export function createOpenAIRoastAnalysisProvider(input?: {
+  apiKey?: string;
   client?: OpenAI;
   model?: string;
+  timeoutMs?: number;
 }): RoastAnalysisProvider {
+  const timeoutMs = input?.timeoutMs ?? OPENAI_PROVIDER_TIMEOUT_MS;
   const client =
-    input?.client ?? new OpenAI({ timeout: OPENAI_PROVIDER_TIMEOUT_MS });
+    input?.client ?? new OpenAI({ apiKey: input?.apiKey, timeout: timeoutMs });
   const model = resolveOpenAIModel(input?.model);
 
   return {
@@ -34,7 +37,7 @@ export function createOpenAIRoastAnalysisProvider(input?: {
             "roast_analysis",
           ),
         },
-        { timeout: OPENAI_PROVIDER_TIMEOUT_MS },
+        { timeout: timeoutMs },
       );
 
       const message = completion.choices[0]?.message;

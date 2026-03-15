@@ -28,6 +28,88 @@ export const roastAnalysisSchema = z.object({
   findings: z.array(roastFindingSchema).min(1),
 });
 
+export const roastAnalysisJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    score: {
+      type: "number",
+      minimum: 0,
+      maximum: 10,
+    },
+    verdictLabel: {
+      type: "string",
+      minLength: 1,
+    },
+    summary: {
+      type: "string",
+      minLength: 1,
+    },
+    improvedCode: {
+      type: "string",
+      minLength: 1,
+    },
+    findings: {
+      type: "array",
+      minItems: 1,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          kind: {
+            type: "string",
+            enum: ["issue", "strength"],
+          },
+          severity: {
+            type: "string",
+            enum: ["critical", "warning", "good"],
+          },
+          title: {
+            type: "string",
+            minLength: 1,
+            maxLength: 160,
+          },
+          description: {
+            type: "string",
+            minLength: 1,
+          },
+          lineStart: {
+            anyOf: [
+              {
+                type: "integer",
+                minimum: 1,
+              },
+              {
+                type: "null",
+              },
+            ],
+          },
+          lineEnd: {
+            anyOf: [
+              {
+                type: "integer",
+                minimum: 1,
+              },
+              {
+                type: "null",
+              },
+            ],
+          },
+        },
+        required: [
+          "kind",
+          "severity",
+          "title",
+          "description",
+          "lineStart",
+          "lineEnd",
+        ],
+      },
+    },
+  },
+  required: ["score", "verdictLabel", "summary", "improvedCode", "findings"],
+} as const;
+
 export type RoastAnalysis = z.infer<typeof roastAnalysisSchema>;
 
 export function parseRoastAnalysis(input: unknown) {
