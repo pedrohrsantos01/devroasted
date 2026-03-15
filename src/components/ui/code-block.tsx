@@ -14,8 +14,10 @@ import { codeToHast } from "shiki";
 
 import { cn } from "@/lib/utils";
 
+type CodeBlockLanguage = BundledLanguage | "text";
+
 const highlightCode = cache(
-  async (code: string, lang: BundledLanguage, showLineNumbers: boolean) => {
+  async (code: string, lang: CodeBlockLanguage, showLineNumbers: boolean) => {
     return codeToHast(code, {
       lang,
       theme: "vesper",
@@ -59,7 +61,7 @@ export function CodeBlockRoot({ className, ...props }: CodeBlockRootProps) {
 export interface CodeBlockContentProps
   extends Omit<ComponentPropsWithoutRef<"div">, "children"> {
   children: string;
-  lang: BundledLanguage;
+  lang: CodeBlockLanguage;
   showLineNumbers?: boolean;
 }
 

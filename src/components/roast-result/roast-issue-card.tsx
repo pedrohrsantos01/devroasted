@@ -1,15 +1,16 @@
 import {
   Badge,
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui";
 
-import type { RoastIssue } from "./roast-result-data";
+import type { RoastResultFinding } from "./roast-result-types";
 
 export interface RoastIssueCardProps {
-  issue: RoastIssue;
+  issue: RoastResultFinding;
 }
 
 export function RoastIssueCard({ issue }: RoastIssueCardProps) {
@@ -32,6 +33,14 @@ export function RoastIssueCard({ issue }: RoastIssueCardProps) {
           </CardDescription>
         </div>
       </CardHeader>
+
+      {issue.lineLabel ? (
+        <CardContent className="pt-0">
+          <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-subtle">
+            {issue.lineLabel}
+          </div>
+        </CardContent>
+      ) : null}
     </Card>
   );
 }
