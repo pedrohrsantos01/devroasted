@@ -9,21 +9,37 @@ Instead of presenting feedback like a boring static analyzer, the experience lea
 ### What the app does
 
 - lets people paste code into a dark editor-like input
-- previews a roast flow with a strong terminal aesthetic
+- creates a roast, redirects to a public result page, and keeps processing in the background
+- shows processing, completed, and failed roast states on the result route
 - highlights the most embarrassing snippets in a public leaderboard
 - includes a reusable UI library and a components showcase page
 
 ### Current experience
 
-- `/` - homepage with editable code input, roast mode toggle, and leaderboard preview
+- `/` - homepage with editable code input, roast mode toggle, and roast submission flow
+- `/roasts/[slug]` - public roast result page with async status updates
 - `/leaderboard` - full static leaderboard page
 - `/components` - visual playground for the shared UI components
 
 ### Current status
 
-This project is currently a static product prototype.
+The roast creation flow now uses persisted async processing.
 
-That means the flows, content, scores, and leaderboard entries are mocked for now, but the app structure and UI system are already in place for future integrations.
+Submitting from the homepage creates a roast record, redirects immediately to `/roasts/[slug]`, and lets the result page reflect `processing`, `completed`, or `failed` based on the saved backend state.
+
+### Environment variables
+
+Create a local `.env` file with:
+
+```bash
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-4.1-mini
+DATABASE_URL=postgresql://user:password@localhost:5432/devroast
+```
+
+- `OPENAI_API_KEY` - credential used by the roast analysis pipeline
+- `OPENAI_MODEL` - OpenAI model name used for roast generation
+- `DATABASE_URL` - PostgreSQL connection string used by the app and Drizzle
 
 ### Design direction
 
@@ -35,6 +51,7 @@ That means the flows, content, scores, and leaderboard entries are mocked for no
 ### Running locally
 
 ```bash
+corepack pnpm install
 corepack pnpm dev
 ```
 
@@ -49,21 +66,37 @@ Em vez de apresentar feedback como um analisador estatico sem graca, a experienc
 ### O que o app faz
 
 - permite colar codigo em uma entrada com visual de editor escuro
-- apresenta um fluxo de roast com identidade forte de terminal
+- cria um roast, redireciona para uma pagina publica e continua o processamento em background
+- mostra estados de processamento, sucesso e falha na pagina de resultado
 - destaca os codigos mais vergonhosos em um leaderboard publico
 - inclui uma biblioteca de UI reutilizavel e uma pagina de showcase de componentes
 
 ### Experiencia atual
 
-- `/` - homepage com editor de codigo, toggle de roast mode e preview do leaderboard
+- `/` - homepage com editor de codigo, toggle de roast mode e fluxo de envio de roast
+- `/roasts/[slug]` - pagina publica de resultado com atualizacao assincrona de status
 - `/leaderboard` - pagina completa e estatica do leaderboard
 - `/components` - playground visual dos componentes compartilhados
 
 ### Estado atual
 
-Este projeto atualmente e um prototipo estatico de produto.
+O fluxo de criacao de roast agora usa processamento assincrono persistido.
 
-Isso significa que os fluxos, conteudos, notas e entradas do leaderboard ainda sao mockados, mas a estrutura do app e o sistema de UI ja estao prontos para futuras integracoes.
+Ao enviar um snippet pela homepage, o app cria o registro do roast, redireciona imediatamente para `/roasts/[slug]` e deixa a pagina de resultado refletir `processing`, `completed` ou `failed` com base no estado salvo no backend.
+
+### Variaveis de ambiente
+
+Crie um arquivo local `.env` com:
+
+```bash
+OPENAI_API_KEY=sua_openai_api_key
+OPENAI_MODEL=gpt-4.1-mini
+DATABASE_URL=postgresql://user:password@localhost:5432/devroast
+```
+
+- `OPENAI_API_KEY` - credencial usada pelo pipeline de analise do roast
+- `OPENAI_MODEL` - nome do modelo OpenAI usado na geracao do roast
+- `DATABASE_URL` - string de conexao PostgreSQL usada pela app e pelo Drizzle
 
 ### Direcao visual
 
@@ -75,6 +108,7 @@ Isso significa que os fluxos, conteudos, notas e entradas do leaderboard ainda s
 ### Rodando localmente
 
 ```bash
+corepack pnpm install
 corepack pnpm dev
 ```
 
