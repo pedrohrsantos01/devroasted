@@ -30,7 +30,7 @@ export function LeaderboardTableHead({
   return (
     <div
       className={cn(
-        "grid h-10 grid-cols-[50px_70px_minmax(0,1fr)_100px] items-center gap-4 border-b border-border-primary bg-surface px-5 font-mono text-[12px] font-medium text-subtle",
+        "grid h-10 grid-cols-[50px_70px_minmax(0,1fr)_140px] items-center gap-4 border-b border-border-primary bg-surface px-5 font-mono text-[12px] font-medium text-subtle",
         className,
       )}
       {...props}
@@ -68,7 +68,7 @@ export function LeaderboardTableRow({
   return (
     <div
       className={cn(
-        "grid grid-cols-[50px_70px_minmax(0,1fr)_100px] gap-4 px-5 py-4 text-[12px]",
+        "grid grid-cols-[50px_70px_minmax(0,1fr)_140px] gap-4 px-5 py-4 text-[12px]",
         className,
       )}
       {...props}

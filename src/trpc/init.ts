@@ -1,5 +1,4 @@
 import { initTRPC } from "@trpc/server";
-import { headers as nextHeaders } from "next/headers";
 import { cache } from "react";
 import superjson from "superjson";
 
@@ -23,7 +22,7 @@ async function createContextInner(input: {
 }
 
 export const createTRPCContext = cache(async () => {
-  const requestHeaders = new Headers(await nextHeaders());
+  const requestHeaders = new Headers();
 
   requestHeaders.set("x-trpc-source", "rsc");
 

@@ -17,6 +17,20 @@ export {
   CardTitle,
 } from "./card";
 export type {
+  CollapsiblePanelProps,
+  CollapsibleRootProps,
+  CollapsibleTriggerProps,
+} from "./collapsible";
+export {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleRoot,
+  CollapsibleTrigger,
+  collapsiblePanelVariants,
+  collapsibleRootVariants,
+  collapsibleTriggerVariants,
+} from "./collapsible";
+export type {
   DiffLineContentProps,
   DiffLinePrefixProps,
   DiffLineRootProps,

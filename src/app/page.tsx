@@ -3,8 +3,7 @@ import { HomeHero } from "@/components/home/home-hero";
 import { HomeStats } from "@/components/home/home-stats";
 import { HomeStatsSkeleton } from "@/components/home/home-stats-skeleton";
 import { LeaderboardPreview } from "@/components/home/leaderboard-preview";
-
-export const dynamic = "force-dynamic";
+import { LeaderboardPreviewSkeleton } from "@/components/home/leaderboard-preview-skeleton";
 
 export default function Home() {
   return (
@@ -15,7 +14,9 @@ export default function Home() {
             <HomeStats />
           </Suspense>
         </HomeHero>
-        <LeaderboardPreview />
+        <Suspense fallback={<LeaderboardPreviewSkeleton />}>
+          <LeaderboardPreview />
+        </Suspense>
       </div>
     </main>
   );

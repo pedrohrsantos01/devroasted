@@ -1,7 +1,13 @@
+import { cacheLife } from "next/cache";
+
 import { AnimatedHomeStats } from "@/components/home/animated-home-stats";
 import { caller } from "@/trpc/server";
 
 export async function HomeStats() {
+  "use cache";
+
+  cacheLife("hours");
+
   const stats = await caller.metrics.home();
 
   return (

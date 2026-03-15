@@ -1,6 +1,7 @@
 import "server-only";
 
 import { toJsxRuntime } from "hast-util-to-jsx-runtime";
+import { cacheLife } from "next/cache";
 import {
   type ComponentPropsWithoutRef,
   cache,
@@ -69,6 +70,10 @@ export async function CodeBlockContent({
   showLineNumbers = true,
   ...props
 }: CodeBlockContentProps) {
+  "use cache";
+
+  cacheLife("max");
+
   const hast = await highlightCode(children, lang, showLineNumbers);
   const renderedCode = toJsxRuntime(hast, {
     Fragment,

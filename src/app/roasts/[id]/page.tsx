@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 import { RoastIssueCard } from "@/components/roast-result/roast-issue-card";
 import { roastResultMock } from "@/components/roast-result/roast-result-data";
@@ -13,8 +14,6 @@ const UUID_PATTERN =
 interface RoastResultPageProps {
   params: Promise<{ id: string }>;
 }
-
-export const dynamic = "force-dynamic";
 
 function isUuid(value: string) {
   return UUID_PATTERN.test(value);
@@ -62,6 +61,8 @@ export async function generateMetadata({
 export default async function RoastResultPage({
   params,
 }: RoastResultPageProps) {
+  await connection();
+
   const { id } = await params;
 
   if (!isUuid(id)) {

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SiteHeader() {
   return (
     <header className="w-full border-b border-border-primary bg-page text-foreground-inverse">
@@ -7,7 +9,12 @@ export function SiteHeader() {
           <span>devroast</span>
         </div>
 
-        <span className="font-mono text-[13px] text-muted">leaderboard</span>
+        <Link
+          className="rounded-sm px-1 py-0.5 font-mono text-[13px] text-muted transition duration-200 ease-out hover:text-foreground-inverse focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+          href="/leaderboard"
+        >
+          leaderboard
+        </Link>
       </div>
     </header>
   );
