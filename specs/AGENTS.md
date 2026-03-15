@@ -12,4 +12,6 @@
   - `## Risks` e/ou decisoes em aberto
   - `## TODO`
 - Sempre cite arquivos, telas, libs e restricoes reais do projeto.
+- Para integracoes com libs/frameworks, cite a documentacao oficial que embasa a decisao.
+- Deixe explicito o recorte inicial: o que entra agora e o que fica fora do escopo.
 - Prefira bullets curtos, decisoes explicitas e TODOs acionaveis.
