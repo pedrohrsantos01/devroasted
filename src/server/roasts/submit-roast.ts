@@ -29,7 +29,8 @@ export async function submitRoast(input: {
 
   try {
     await input.triggerProcessing(created.id);
-  } catch {
+  } catch (error) {
+    console.error("Failed to start roast processing.", created.id, error);
     // keep the roast queued so the result page can still render processing
   }
 
