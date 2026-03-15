@@ -2,7 +2,7 @@
 
 ## Objective
 
-- Definir o primeiro fluxo real de criacao de roast do devroast.
+- Definir o fluxo de criacao de roast do devroast como uma jornada de submissao, processamento assincrono e exibicao publica de resultado.
 - Permitir que o usuario envie um snippet pela homepage e acompanhe o resultado em uma URL publica propria.
 - Garantir que a analise de IA rode de forma assincrona e persistida, sem bloquear a submissao.
 - Deixar explicito que `share roast` fica fora do escopo deste recorte.
@@ -19,13 +19,16 @@
 - `src/components/roast-result/*`
 - `src/server/roasts/*`
 - `src/trpc/routers/roasts.ts`
+- Next.js App Router fetching/loading docs: `https://nextjs.org/docs/app/getting-started/fetching-data`
+- Next.js `loading.js` and Suspense docs: `https://nextjs.org/docs/app/api-reference/file-conventions/loading`
+- tRPC TanStack React Query + Server Components docs: `https://trpc.io/docs/client/tanstack-react-query/server-components`
 
 ## Current project context
 
-- O app ja tem homepage de submissao, rota publica de resultado e persistencia do ciclo de vida do roast no banco.
-- A branch atual implementa submissao real e pagina de resultado por slug publico.
-- O processamento da analise depende de persistencia, para que o usuario possa sair da homepage imediatamente e acompanhar o status depois.
-- O resultado final alimenta a experiencia publica do produto; por isso o fluxo precisa tratar estados incompletos e falhas de forma explicita.
+- O app tem homepage de submissao, rota publica de resultado e persistencia do ciclo de vida do roast no banco.
+- A experiencia do produto depende de redirecionamento imediato para a pagina publica do roast, sem esperar a resposta completa do provedor.
+- O processamento da analise depende de persistencia, para que o usuario possa acompanhar o status depois da navegacao.
+- O resultado final precisa tratar estados incompletos e falhas de forma explicita.
 
 ## Requirements
 
@@ -49,12 +52,20 @@
 - O resultado precisa ser persistido de forma assincrona; o submit da homepage nao espera a resposta completa do provedor.
 - `share roast` fica explicitamente fora do escopo deste ciclo.
 
+### Framework and integration notes
+
+- A pagina de resultado deve seguir o modelo do App Router com loading UI orientada a Suspense e streaming, alinhado com a documentacao oficial do Next.js.
+- A leitura e o polling do roast devem continuar usando o contrato do tRPC no App Router, alinhado com a integracao oficial de TanStack React Query + Server Components.
+- O contrato de integracao com IA deve ficar atras de um adaptador server-side para preservar a possibilidade de trocar provedor sem alterar homepage, rota publica ou shape de resposta.
+
 ## Recommendation
 
 - Usar pipeline assincrono persistido como fluxo oficial de criacao.
 - Criar o roast primeiro, devolver o slug publico e disparar o processamento em segundo plano.
 - Tratar `queued` e `processing` de backend como um unico estado de produto: `processing`.
 - Manter o contrato da pagina de resultado orientado a estado, para simplificar UI e polling.
+- Manter a pagina principalmente server-first, com um leaf client pequeno para polling e atualizacao de status, seguindo o uso de Suspense e boundaries recomendado no App Router.
+- Manter o tRPC como contrato typesafe entre homepage, pagina de resultado e camada server, sem criar um fetch ad-hoc paralelo.
 
 ## Implementation shape
 
@@ -71,6 +82,18 @@
   - ler roast por slug
   - renderizar shell de `processing` enquanto a analise nao termina
   - trocar para `completed` ou `failed` quando houver estado final
+
+## Verification
+
+- `pnpm exec tsx --test src/server/roasts/**/*.test.ts src/components/roast-result/**/*.test.ts`
+  - status: passing
+  - resultado observado: `17` testes passaram, `0` falhas
+- `pnpm lint`
+  - status: failing
+  - resultado observado: Biome falha por drift de formatacao repo-wide em arquivos fora deste escopo, incluindo `biome.json`, `drizzle.config.ts` e varios arquivos em `src/app/*`
+- `pnpm build`
+  - status: failing
+  - resultado observado: o build compila, mas falha no prerender de rotas com acesso ao banco (`/leaderboard` e metricas da homepage) porque as queries DB-backed nao conseguem conectar/autenticar localmente; os erros observados incluem `ECONNRESET` e, em verificacao anterior do mesmo fluxo, `password authentication failed`
 
 ## File impact
 

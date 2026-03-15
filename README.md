@@ -29,7 +29,7 @@ Create a local `.env` file with:
 
 ```bash
 OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-4.1-mini
+OPENAI_MODEL=gpt-4o-2024-08-06
 DATABASE_URL=postgresql://user:password@localhost:5432/devroast
 ```
 
@@ -75,7 +75,7 @@ Crie um arquivo local `.env` com:
 
 ```bash
 OPENAI_API_KEY=sua_openai_api_key
-OPENAI_MODEL=gpt-4.1-mini
+OPENAI_MODEL=gpt-4o-2024-08-06
 DATABASE_URL=postgresql://user:password@localhost:5432/devroast
 ```
 
