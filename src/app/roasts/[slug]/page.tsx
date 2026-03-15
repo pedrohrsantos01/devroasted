@@ -6,8 +6,6 @@ import { RoastProcessingState } from "@/components/roast-result/roast-processing
 import { RoastResultView } from "@/components/roast-result/roast-result-view";
 import { caller } from "@/trpc/server";
 
-export const dynamic = "force-dynamic";
-
 interface RoastResultPageProps {
   params: Promise<{ slug: string }>;
 }
