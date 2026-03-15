@@ -11,8 +11,6 @@ Instead of presenting feedback like a boring static analyzer, the experience lea
 - lets people paste code into a dark editor-like input
 - creates a roast, redirects to a public result page, and keeps processing in the background
 - shows processing, completed, and failed roast states on the result route
-- highlights the most embarrassing snippets in a public leaderboard
-- includes a reusable UI library and a components showcase page
 
 ### Current experience
 
@@ -39,13 +37,6 @@ DATABASE_URL=postgresql://user:password@localhost:5432/devroast
 - `OPENAI_MODEL` - OpenAI model name used for roast generation
 - `DATABASE_URL` - PostgreSQL connection string used by the app and Drizzle
 
-### Design direction
-
-- dark interface with terminal energy
-- strong monospace identity for code-heavy surfaces
-- green accent color for actions and system highlights
-- reusable composed components instead of one-off page markup
-
 ### Running locally
 
 ```bash
@@ -66,8 +57,6 @@ Em vez de apresentar feedback como um analisador estatico sem graca, a experienc
 - permite colar codigo em uma entrada com visual de editor escuro
 - cria um roast, redireciona para uma pagina publica e continua o processamento em background
 - mostra estados de processamento, sucesso e falha na pagina de resultado
-- destaca os codigos mais vergonhosos em um leaderboard publico
-- inclui uma biblioteca de UI reutilizavel e uma pagina de showcase de componentes
 
 ### Experiencia atual
 
@@ -93,13 +82,6 @@ DATABASE_URL=postgresql://user:password@localhost:5432/devroast
 - `OPENAI_API_KEY` - credencial usada pelo pipeline de analise do roast
 - `OPENAI_MODEL` - nome do modelo OpenAI usado na geracao do roast
 - `DATABASE_URL` - string de conexao PostgreSQL usada pela app e pelo Drizzle
-
-### Direcao visual
-
-- interface escura com energia de terminal
-- identidade monospaced forte para superficies de codigo
-- acento verde para acoes e destaques do sistema
-- componentes compostos e reutilizaveis em vez de markup isolado por pagina
 
 ### Rodando localmente
 
