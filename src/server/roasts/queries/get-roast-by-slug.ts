@@ -2,6 +2,8 @@ import { and, asc, eq } from "drizzle-orm";
 
 import type { RoastResultState } from "@/components/roast-result/roast-result-types";
 import { roastFindings, roasts } from "@/db/schema";
+import { recoverRoastProcessing } from "@/server/roasts/pipeline/recover-roast-processing";
+import { triggerRoastProcessing } from "@/server/roasts/pipeline/trigger-roast-processing";
 
 const FAILED_TITLE = "This roast slipped off the grill";
 const FAILED_SUMMARY =
@@ -9,7 +11,9 @@ const FAILED_SUMMARY =
 
 export async function getRoastBySlug(input: {
   db: typeof import("@/db/client").db;
+  now?: Date;
   slug: string;
+  triggerProcessing?: (roastId: string) => Promise<void>;
 }): Promise<RoastResultState | null> {
   const roast = await input.db.query.roasts.findFirst({
     columns: {
@@ -22,6 +26,7 @@ export async function getRoastBySlug(input: {
       score: true,
       status: true,
       summary: true,
+      updatedAt: true,
       verdictLabel: true,
     },
     where: and(
@@ -35,6 +40,17 @@ export async function getRoastBySlug(input: {
   }
 
   if (roast.status === "queued" || roast.status === "processing") {
+    await recoverRoastProcessing({
+      db: input.db,
+      now: input.now,
+      roastId: roast.id,
+      status: roast.status,
+      triggerProcessing:
+        input.triggerProcessing ??
+        ((roastId) => triggerRoastProcessing({ db: input.db, roastId })),
+      updatedAt: roast.updatedAt,
+    });
+
     return {
       language: roast.language,
       mode: roast.mode,

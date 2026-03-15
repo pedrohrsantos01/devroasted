@@ -6,13 +6,13 @@ const roastFindingSchema = z
     severity: z.enum(["critical", "warning", "good"]),
     title: z.string().min(1).max(160),
     description: z.string().min(1),
-    lineStart: z.number().int().positive().optional(),
-    lineEnd: z.number().int().positive().optional(),
+    lineStart: z.number().int().positive().nullable(),
+    lineEnd: z.number().int().positive().nullable(),
   })
   .refine(
     (value) =>
-      value.lineStart === undefined ||
-      value.lineEnd === undefined ||
+      value.lineStart === null ||
+      value.lineEnd === null ||
       value.lineEnd >= value.lineStart,
     {
       message: "lineEnd must be greater than or equal to lineStart",

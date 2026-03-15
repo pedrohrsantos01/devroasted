@@ -60,13 +60,21 @@ function getProvider(provider?: RoastAnalysisProvider) {
 
 function validateFindings(analysis: RoastAnalysis, lineCount: number) {
   for (const finding of analysis.findings) {
-    if (finding.lineStart !== undefined && finding.lineStart > lineCount) {
+    if (
+      finding.lineStart !== undefined &&
+      finding.lineStart !== null &&
+      finding.lineStart > lineCount
+    ) {
       throw new Error(
         `Finding "${finding.title}" lineStart ${finding.lineStart} exceeds lineCount ${lineCount}.`,
       );
     }
 
-    if (finding.lineEnd !== undefined && finding.lineEnd > lineCount) {
+    if (
+      finding.lineEnd !== undefined &&
+      finding.lineEnd !== null &&
+      finding.lineEnd > lineCount
+    ) {
       throw new Error(
         `Finding "${finding.title}" lineEnd ${finding.lineEnd} exceeds lineCount ${lineCount}.`,
       );

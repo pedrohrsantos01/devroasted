@@ -9,6 +9,7 @@ import { buildRoastAnalysisPrompt } from "@/server/roasts/prompts";
 import type { RoastAnalysisProvider } from "@/server/roasts/providers/provider";
 
 const DEFAULT_MODEL = "gpt-4o-2024-08-06";
+export const OPENAI_PROVIDER_TIMEOUT_MS = 20_000;
 
 export function resolveOpenAIModel(model?: string) {
   return model ?? process.env.OPENAI_MODEL ?? DEFAULT_MODEL;
@@ -18,19 +19,23 @@ export function createOpenAIRoastAnalysisProvider(input?: {
   client?: OpenAI;
   model?: string;
 }): RoastAnalysisProvider {
-  const client = input?.client ?? new OpenAI();
+  const client =
+    input?.client ?? new OpenAI({ timeout: OPENAI_PROVIDER_TIMEOUT_MS });
   const model = resolveOpenAIModel(input?.model);
 
   return {
     async analyze(analysisInput) {
-      const completion = await client.chat.completions.parse({
-        model,
-        messages: buildRoastAnalysisPrompt(analysisInput),
-        response_format: zodResponseFormat(
-          roastAnalysisSchema,
-          "roast_analysis",
-        ),
-      });
+      const completion = await client.chat.completions.parse(
+        {
+          model,
+          messages: buildRoastAnalysisPrompt(analysisInput),
+          response_format: zodResponseFormat(
+            roastAnalysisSchema,
+            "roast_analysis",
+          ),
+        },
+        { timeout: OPENAI_PROVIDER_TIMEOUT_MS },
+      );
 
       const message = completion.choices[0]?.message;
 
