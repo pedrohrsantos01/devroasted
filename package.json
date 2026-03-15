@@ -46,11 +46,13 @@
     "@biomejs/biome": "2.2.0",
     "@faker-js/faker": "^10.3.0",
     "@tailwindcss/postcss": "^4",
+    "@types/jsdom": "^28.0.0",
     "@types/node": "^20",
     "@types/pg": "^8.18.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.9",
+    "jsdom": "^29.0.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"

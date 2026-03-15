@@ -2,21 +2,23 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { getPollInterval } from "@/components/roast-result/get-poll-interval";
-import { Button } from "@/components/ui";
 
-const STALLED_THRESHOLD_MS = 5 * 60_000;
+import { getPollInterval } from "@/components/roast-result/get-poll-interval";
+import { isRoastStalled } from "@/components/roast-result/is-roast-stalled";
+import { Button } from "@/components/ui";
 
 export function RoastStatusPoller({ createdAt }: { createdAt: Date }) {
   const router = useRouter();
   const [isCheckingNow, startCheckingNow] = useTransition();
   const createdAtMs = useMemo(() => new Date(createdAt).getTime(), [createdAt]);
   const [hasReachedStalledThreshold, setHasReachedStalledThreshold] = useState(
-    () => Date.now() - createdAtMs >= STALLED_THRESHOLD_MS,
+    () => isRoastStalled(Date.now() - createdAtMs),
   );
 
   useEffect(() => {
-    if (Date.now() - createdAtMs >= STALLED_THRESHOLD_MS) {
+    const elapsedMs = Date.now() - createdAtMs;
+
+    if (isRoastStalled(elapsedMs)) {
       setHasReachedStalledThreshold(true);
 
       return;
@@ -26,7 +28,7 @@ export function RoastStatusPoller({ createdAt }: { createdAt: Date }) {
       () => {
         setHasReachedStalledThreshold(true);
       },
-      Math.max(STALLED_THRESHOLD_MS - (Date.now() - createdAtMs), 0),
+      Math.max(5 * 60_000 - elapsedMs, 0),
     );
 
     return () => {

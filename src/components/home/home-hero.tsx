@@ -16,18 +16,25 @@ import {
 } from "@/components/ui";
 import { useTRPC } from "@/trpc/client";
 
+export const homeHeroDependencies = {
+  HomeCodeEditor,
+  useMutation,
+  useRouter,
+  useTRPC,
+};
+
 interface HomeHeroProps {
   children?: ReactNode;
 }
 
 export function HomeHero({ children }: HomeHeroProps) {
-  const router = useRouter();
-  const trpc = useTRPC();
+  const router = homeHeroDependencies.useRouter();
+  const trpc = homeHeroDependencies.useTRPC();
   const [snippet, setSnippet] = useState("");
   const [language, setLanguage] = useState<SupportedLanguageId>("plaintext");
   const [mode, setMode] = useState<"honest" | "roast">("roast");
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const submitRoast = useMutation(
+  const submitRoast = homeHeroDependencies.useMutation(
     trpc.roasts.submit.mutationOptions({
       onError: () => {
         setSubmitError(
@@ -77,7 +84,7 @@ export function HomeHero({ children }: HomeHeroProps) {
         </p>
       </div>
 
-      <HomeCodeEditor
+      <homeHeroDependencies.HomeCodeEditor
         className="w-full max-w-[780px]"
         onCodeChange={setSnippet}
         onLanguageChange={setLanguage}
