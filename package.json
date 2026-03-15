@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test src/**/*.test.ts",
+    "test": "tsx --test src/**/*.test.ts src/**/*.test.tsx",
     "lint": "biome check",
     "format": "biome format --write",
     "db:up": "docker compose up -d postgres",

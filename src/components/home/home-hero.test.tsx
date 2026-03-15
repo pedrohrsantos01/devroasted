@@ -5,6 +5,15 @@ import { JSDOM } from "jsdom";
 import { act, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
+import type { SupportedLanguageId } from "@/components/home/editor-language-registry";
+
+type HomeHeroModule = typeof import("./home-hero");
+type HomeHeroDependencies = HomeHeroModule["homeHeroDependencies"];
+type HomeCodeEditorProps = Parameters<
+  HomeHeroDependencies["HomeCodeEditor"]
+>[0];
+type MutationOptions = Parameters<HomeHeroDependencies["useMutation"]>[0];
+
 test("HomeHero disables duplicate submission while a roast is pending", async () => {
   const rendered = await renderHomeHero();
 
@@ -58,29 +67,13 @@ async function renderHomeHero() {
 
   assert.ok("homeHeroDependencies" in module);
 
-  const { HomeHero, homeHeroDependencies } =
-    module as typeof import("./home-hero") & {
-      homeHeroDependencies: Record<string, any>;
-    };
+  const { HomeHero, homeHeroDependencies } = module as HomeHeroModule;
 
   const mutationController = createMutationController();
   const pushCalls: string[] = [];
   const originalDependencies = { ...homeHeroDependencies };
 
-  homeHeroDependencies.HomeCodeEditor = function StubHomeCodeEditor({
-    onCodeChange,
-    onLanguageChange,
-  }: {
-    onCodeChange?: (code: string) => void;
-    onLanguageChange?: (language: any) => void;
-  }) {
-    useEffect(() => {
-      onCodeChange?.("const answer = 42;");
-      onLanguageChange?.("typescript");
-    }, [onCodeChange, onLanguageChange]);
-
-    return <div data-testid="stub-editor" />;
-  };
+  homeHeroDependencies.HomeCodeEditor = createStubHomeCodeEditor();
 
   homeHeroDependencies.useRouter = () => ({
     back() {},
@@ -93,16 +86,16 @@ async function renderHomeHero() {
     replace() {},
   });
 
-  homeHeroDependencies.useTRPC = () =>
-    ({
-      roasts: {
-        submit: {
-          mutationOptions: (options: any) => options,
-        },
+  homeHeroDependencies.useTRPC = (() => ({
+    roasts: {
+      submit: {
+        mutationOptions: (options: MutationOptions) => options,
       },
-    }) as any;
+    },
+  })) as unknown as HomeHeroDependencies["useTRPC"];
 
-  homeHeroDependencies.useMutation = mutationController.useMutation as any;
+  homeHeroDependencies.useMutation =
+    mutationController.useMutation as unknown as HomeHeroDependencies["useMutation"];
 
   const container = document.createElement("div");
   document.body.append(container);
@@ -213,6 +206,20 @@ function createMutationController() {
   };
 }
 
+function createStubHomeCodeEditor(): HomeHeroDependencies["HomeCodeEditor"] {
+  return function StubHomeCodeEditor({
+    onCodeChange,
+    onLanguageChange,
+  }: Pick<HomeCodeEditorProps, "onCodeChange" | "onLanguageChange">) {
+    useEffect(() => {
+      onCodeChange?.("const answer = 42;");
+      onLanguageChange?.("typescript" satisfies SupportedLanguageId);
+    }, [onCodeChange, onLanguageChange]);
+
+    return <div data-testid="stub-editor" />;
+  };
+}
+
 const originalGlobalDescriptors = {
   cancelAnimationFrame: Object.getOwnPropertyDescriptor(
     globalThis,
@@ -234,7 +241,10 @@ const originalGlobalDescriptors = {
 };
 
 function installDomGlobals(dom: JSDOM) {
-  (globalThis as Record<string, any>).IS_REACT_ACT_ENVIRONMENT = true;
+  Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", {
+    configurable: true,
+    value: true,
+  });
 
   Object.defineProperties(globalThis, {
     cancelAnimationFrame: {
@@ -278,10 +288,7 @@ function installDomGlobals(dom: JSDOM) {
 
 function restoreDomGlobals(dom: JSDOM) {
   dom.window.close();
-  Reflect.deleteProperty(
-    globalThis as Record<string, any>,
-    "IS_REACT_ACT_ENVIRONMENT",
-  );
+  Reflect.deleteProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT");
 
   for (const [key, descriptor] of Object.entries(originalGlobalDescriptors)) {
     if (descriptor) {
