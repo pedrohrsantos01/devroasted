@@ -18,8 +18,6 @@ Instead of presenting feedback like a boring static analyzer, the experience lea
 
 - `/` - homepage with editable code input, roast mode toggle, and roast submission flow
 - `/roasts/[slug]` - public roast result page with async status updates
-- `/leaderboard` - full static leaderboard page
-- `/components` - visual playground for the shared UI components
 
 ### Current status
 
@@ -75,8 +73,6 @@ Em vez de apresentar feedback como um analisador estatico sem graca, a experienc
 
 - `/` - homepage com editor de codigo, toggle de roast mode e fluxo de envio de roast
 - `/roasts/[slug]` - pagina publica de resultado com atualizacao assincrona de status
-- `/leaderboard` - pagina completa e estatica do leaderboard
-- `/components` - playground visual dos componentes compartilhados
 
 ### Estado atual
 
