@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { roastAnalysisJsonSchema } from "@/server/roasts/analysis-contract";
 import {
   createGeminiRoastAnalysisProvider,
   GEMINI_PROVIDER_TIMEOUT_MS,
@@ -121,8 +122,58 @@ test("createGeminiRoastAnalysisProvider passes the configured timeout to models.
       ?.timeout,
     GEMINI_PROVIDER_TIMEOUT_MS + 1_000,
   );
+  assert.deepEqual(
+    (requests[0]?.config as { responseJsonSchema?: unknown })
+      .responseJsonSchema,
+    roastAnalysisJsonSchema,
+  );
   assert.equal(
     (requests[0]?.config as { responseMimeType?: string }).responseMimeType,
     "application/json",
+  );
+});
+
+test("createGeminiRoastAnalysisProvider sends system instruction separately from user contents", async () => {
+  const requests: Array<Record<string, unknown>> = [];
+
+  const provider = createGeminiRoastAnalysisProvider({
+    apiKey: "test-gemini-key",
+    client: {
+      models: {
+        generateContent: async (params: Record<string, unknown>) => {
+          requests.push(params);
+
+          return {
+            text: JSON.stringify({
+              score: 7.4,
+              verdictLabel: "Needs polish",
+              summary: "Pretty good, but still roastable.",
+              improvedCode: "const answer = 42;\nconsole.log(answer);",
+              findings: [
+                {
+                  kind: "issue",
+                  severity: "warning",
+                  title: "Unused value",
+                  description: "The answer is never used.",
+                  lineStart: null,
+                  lineEnd: null,
+                },
+              ],
+            }),
+          };
+        },
+      },
+    } as never,
+  });
+
+  await provider.analyze(analysisInput);
+
+  assert.equal(
+    (requests[0]?.config as { systemInstruction?: string }).systemInstruction,
+    "You analyze code submissions and return structured roast analysis. Be sharp, playful, and funny, but keep the advice useful and grounded in the code. Always ground findings in the submitted code. Only reference line numbers between 1 and the provided lineCount. Return at least one finding and include improvedCode.",
+  );
+  assert.equal(
+    requests[0]?.contents,
+    "roastId: roast-1\nlanguage: typescript\nlineCount: 1\nmode: roast\nAnalyze this code:\n```\nconst answer = 42;\n```",
   );
 });

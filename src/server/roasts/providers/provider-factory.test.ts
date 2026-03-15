@@ -73,6 +73,48 @@ test("createRoastAnalysisProvider chooses OpenAI when ROAST_PROVIDER=openai", ()
   assert.equal(openaiCallCount, 1);
 });
 
+test("createRoastAnalysisProvider passes injected env config to the selected provider", () => {
+  const originalOpenAIApiKey = process.env.OPENAI_API_KEY;
+  const originalOpenAIModel = process.env.OPENAI_MODEL;
+  const openaiProvider = createStubProvider();
+  let receivedConfig: Record<string, unknown> | undefined;
+
+  process.env.OPENAI_API_KEY = "process-openai-key";
+  process.env.OPENAI_MODEL = "process-openai-model";
+
+  try {
+    const provider = createRoastAnalysisProvider({
+      createOpenAIProvider: (config) => {
+        receivedConfig = config;
+        return openaiProvider;
+      },
+      env: {
+        OPENAI_API_KEY: "injected-openai-key",
+        OPENAI_MODEL: "injected-openai-model",
+        ROAST_PROVIDER: "openai",
+      },
+    });
+
+    assert.equal(provider, openaiProvider);
+    assert.deepEqual(receivedConfig, {
+      apiKey: "injected-openai-key",
+      model: "injected-openai-model",
+    });
+  } finally {
+    if (originalOpenAIApiKey === undefined) {
+      delete process.env.OPENAI_API_KEY;
+    } else {
+      process.env.OPENAI_API_KEY = originalOpenAIApiKey;
+    }
+
+    if (originalOpenAIModel === undefined) {
+      delete process.env.OPENAI_MODEL;
+    } else {
+      process.env.OPENAI_MODEL = originalOpenAIModel;
+    }
+  }
+});
+
 test("createRoastAnalysisProvider fails clearly when GEMINI_API_KEY is missing", () => {
   assert.throws(
     () => createRoastAnalysisProvider({ env: {} }),

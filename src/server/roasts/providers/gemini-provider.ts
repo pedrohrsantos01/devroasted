@@ -10,16 +10,20 @@ import type { RoastAnalysisProvider } from "@/server/roasts/providers/provider";
 const DEFAULT_MODEL = "gemini-3-flash-preview";
 export const GEMINI_PROVIDER_TIMEOUT_MS = 20_000;
 
-export function resolveGeminiModel(model?: string) {
-  return model ?? process.env.GEMINI_MODEL ?? DEFAULT_MODEL;
-}
-
-export function createGeminiRoastAnalysisProvider(input?: {
+export interface GeminiRoastAnalysisProviderConfig {
   apiKey?: string;
   client?: GoogleGenAI;
   model?: string;
   timeoutMs?: number;
-}): RoastAnalysisProvider {
+}
+
+export function resolveGeminiModel(model?: string) {
+  return model ?? process.env.GEMINI_MODEL ?? DEFAULT_MODEL;
+}
+
+export function createGeminiRoastAnalysisProvider(
+  input?: GeminiRoastAnalysisProviderConfig,
+): RoastAnalysisProvider {
   const client =
     input?.client ??
     new GoogleGenAI({ apiKey: input?.apiKey ?? process.env.GEMINI_API_KEY });
@@ -28,13 +32,16 @@ export function createGeminiRoastAnalysisProvider(input?: {
 
   return {
     async analyze(analysisInput) {
+      const prompt = buildRoastAnalysisPrompt(analysisInput);
+
       const response = await client.models.generateContent({
         model,
-        contents: buildGeminiPromptContents(analysisInput),
+        contents: prompt.userPrompt,
         config: {
           httpOptions: {
             timeout: timeoutMs,
           },
+          systemInstruction: prompt.systemInstruction,
           responseJsonSchema: roastAnalysisJsonSchema,
           responseMimeType: "application/json",
         },
@@ -57,46 +64,4 @@ export function createGeminiRoastAnalysisProvider(input?: {
       return parseRoastAnalysis(parsed);
     },
   };
-}
-
-function buildGeminiPromptContents(input: {
-  code: string;
-  language: string;
-  lineCount: number;
-  mode: "honest" | "roast";
-  roastId: string;
-}) {
-  return buildRoastAnalysisPrompt(input)
-    .map((message) => {
-      const content = normalizePromptContent(message.content);
-
-      return `${message.role.toUpperCase()}:\n${content}`;
-    })
-    .join("\n\n");
-}
-
-function normalizePromptContent(content: unknown) {
-  if (typeof content === "string") {
-    return content;
-  }
-
-  if (!Array.isArray(content)) {
-    return "";
-  }
-
-  return content
-    .map((part) => {
-      if (
-        typeof part === "object" &&
-        part !== null &&
-        "text" in part &&
-        typeof part.text === "string"
-      ) {
-        return part.text;
-      }
-
-      return "";
-    })
-    .join("\n")
-    .trim();
 }

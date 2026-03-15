@@ -11,16 +11,20 @@ import type { RoastAnalysisProvider } from "@/server/roasts/providers/provider";
 const DEFAULT_MODEL = "gpt-4o-mini";
 export const OPENAI_PROVIDER_TIMEOUT_MS = 20_000;
 
-export function resolveOpenAIModel(model?: string) {
-  return model ?? process.env.OPENAI_MODEL ?? DEFAULT_MODEL;
-}
-
-export function createOpenAIRoastAnalysisProvider(input?: {
+export interface OpenAIRoastAnalysisProviderConfig {
   apiKey?: string;
   client?: OpenAI;
   model?: string;
   timeoutMs?: number;
-}): RoastAnalysisProvider {
+}
+
+export function resolveOpenAIModel(model?: string) {
+  return model ?? process.env.OPENAI_MODEL ?? DEFAULT_MODEL;
+}
+
+export function createOpenAIRoastAnalysisProvider(
+  input?: OpenAIRoastAnalysisProviderConfig,
+): RoastAnalysisProvider {
   const timeoutMs = input?.timeoutMs ?? OPENAI_PROVIDER_TIMEOUT_MS;
   const client =
     input?.client ?? new OpenAI({ apiKey: input?.apiKey, timeout: timeoutMs });
@@ -28,10 +32,21 @@ export function createOpenAIRoastAnalysisProvider(input?: {
 
   return {
     async analyze(analysisInput) {
+      const prompt = buildRoastAnalysisPrompt(analysisInput);
+
       const completion = await client.chat.completions.parse(
         {
           model,
-          messages: buildRoastAnalysisPrompt(analysisInput),
+          messages: [
+            {
+              role: "system",
+              content: prompt.systemInstruction,
+            },
+            {
+              role: "user",
+              content: prompt.userPrompt,
+            },
+          ],
           response_format: zodResponseFormat(
             roastAnalysisSchema,
             "roast_analysis",
