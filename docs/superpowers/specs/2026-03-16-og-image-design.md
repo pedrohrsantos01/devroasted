@@ -30,7 +30,7 @@
 - `metadataBase` is not set in the root layout.
 - The `generateMetadata` on the roast page only sets `title`, `description`, and `robots`.
 - The Pencil design includes a "Screen 4 - OG Image" (1200x630) that was planned from the start but never implemented.
-- All data needed for the OG image (score, verdictLabel, summary, language, lineCount, mode) is already available from the `completed` roast state via `getRoastBySlug`.
+- The data needed for the OG image (score, verdictLabel, summary, language, originalCode) is available from the `completed` roast state via `getRoastBySlug`. Line count is derived from `originalCode.split("\n").length` (same approach used by the existing result page UI).
 
 ## Requirements
 
@@ -90,13 +90,53 @@ src/components/og/
 ```
 Social crawler → GET /roasts/{slug}/opengraph-image
   → route.tsx reads slug from params
-  → calls getRoastBySlug(db, slug) directly (server-only, no tRPC)
+  → imports db from "@/db/client"
+  → calls getRoastBySlug({ db, slug }) directly (server-only, no tRPC)
   → if completed:
       → renders RoastOgImage JSX via Takumi ImageResponse
       → Cache-Control: public, max-age=31536000, immutable
   → if processing/failed/null:
       → renders FallbackOgImage JSX via Takumi ImageResponse
       → Cache-Control: public, max-age=60
+  → if getRoastBySlug throws:
+      → returns FallbackOgImage with Cache-Control: no-cache
+```
+
+Route handler skeleton:
+
+```ts
+import { ImageResponse } from "@takumi-rs/image-response";
+import { db } from "@/db/client";
+import { getRoastBySlug } from "@/server/roasts/queries/get-roast-by-slug";
+// ... font loading, components
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+
+  try {
+    const roast = await getRoastBySlug({ db, slug });
+
+    if (roast?.status === "completed") {
+      return new ImageResponse(<RoastOgImage roast={roast} />, {
+        width: 1200, height: 630, fonts,
+        headers: { "Cache-Control": "public, max-age=31536000, immutable" },
+      });
+    }
+
+    return new ImageResponse(<FallbackOgImage />, {
+      width: 1200, height: 630, fonts,
+      headers: { "Cache-Control": "public, max-age=60" },
+    });
+  } catch {
+    return new ImageResponse(<FallbackOgImage />, {
+      width: 1200, height: 630, fonts,
+      headers: { "Cache-Control": "no-cache" },
+    });
+  }
+}
 ```
 
 ### Dynamic Image Layout (completed)
@@ -105,19 +145,19 @@ Social crawler → GET /roasts/{slug}/opengraph-image
 
 | Element | Font | Size | Color | Notes |
 |---------|------|------|-------|-------|
-| `>` logo prompt | JetBrains Mono Bold | 24px | `#10B981` (accent-green) | |
-| `devroast` logo text | JetBrains Mono Medium | 20px | `#E5E5E5` (text-primary) | |
-| Score number | JetBrains Mono Black (900) | 160px | `#F59E0B` (accent-amber) | lineHeight: 1 |
-| `/10` denominator | JetBrains Mono Regular | 56px | `#737373` (text-tertiary) | lineHeight: 1, baseline-aligned with score |
-| Verdict dot | — | 12x12 | Dynamic (see below) | Ellipse |
-| Verdict label | JetBrains Mono Regular | 20px | Dynamic (same as dot) | |
-| Language info | JetBrains Mono Regular | 16px | `#737373` (text-tertiary) | Format: `lang: {language} · {lineCount} lines` |
-| Summary quote | JetBrains Mono Regular | 22px | `#E5E5E5` (text-primary) | Wrapped in curly quotes, centered, max ~120 chars with `...` |
+| `>` logo prompt | JetBrains Mono Bold (700) | 24px | `#10B981` (accent-green) | |
+| `devroast` logo text | JetBrains Mono Bold (700) | 20px | `#E5E5E5` (text-primary) | Design uses Medium (500) but Bold is close enough; avoids extra font file |
+| Score number | JetBrains Mono Bold (700) | 160px | `#F59E0B` (accent-amber) | lineHeight: 1. Display format: `score.toFixed(1)` (e.g. `3.5`, `7.0`) matching existing `RoastScoreRing` |
+| `/10` denominator | JetBrains Mono Regular (400) | 56px | `#737373` (text-tertiary) | lineHeight: 1, aligned with score via `alignItems: "flex-end"` |
+| Verdict dot | — | 12x12 | Dynamic (see below) | Rendered as a `<div>` with `borderRadius: "50%"` |
+| Verdict label | JetBrains Mono Regular (400) | 20px | Dynamic (same as dot) | |
+| Language info | JetBrains Mono Regular (400) | 16px | `#737373` (text-tertiary) | Format: `lang: {language} · {lineCount} lines`. Line count derived from `originalCode.split("\n").length` |
+| Summary quote | JetBrains Mono Regular (400) | 22px | `#E5E5E5` (text-primary) | Wrapped in curly quotes, centered, max ~120 chars with `...` |
 
-**Verdict color logic** (matches existing `RoastScoreRing` thresholds):
+**Verdict color logic** (reuses the same thresholds as `getVerdictTone` in `src/components/roast-result/roast-result-view.tsx:174-184`):
 - Score < 4: `#EF4444` (accent-red)
-- Score 4–6: `#F59E0B` (accent-amber)
-- Score > 6: `#10B981` (accent-green)
+- Score >= 4 and < 7: `#F59E0B` (accent-amber)
+- Score >= 7: `#10B981` (accent-green)
 
 **Layout properties:**
 - Container: flexbox column, `justifyContent: center`, `alignItems: center`
@@ -132,19 +172,26 @@ Social crawler → GET /roasts/{slug}/opengraph-image
 
 | Element | Font | Size | Color |
 |---------|------|------|-------|
-| `>` logo prompt | JetBrains Mono Bold | 24px | `#10B981` |
-| `devroast` logo text | JetBrains Mono Medium | 20px | `#E5E5E5` |
-| Tagline | JetBrains Mono Regular | 24px | `#A3A3A3` (text-secondary) |
+| `>` logo prompt | JetBrains Mono Bold (700) | 24px | `#10B981` |
+| `devroast` logo text | JetBrains Mono Bold (700) | 20px | `#E5E5E5` |
+| Tagline | JetBrains Mono Regular (400) | 24px | `#A3A3A3` (text-secondary) |
 
 Content: `"Paste your code. Get roasted."`
 
 ### Font Loading
 
-JetBrains Mono `.ttf` files (Regular 400 + Bold 700) stored in `src/assets/fonts/`.
+Two JetBrains Mono `.ttf` files stored in `src/assets/fonts/`:
+- `JetBrainsMono-Regular.ttf` (weight 400) — used for denominator, verdict label, language info, summary, tagline
+- `JetBrainsMono-Bold.ttf` (weight 700) — used for logo prompt, logo text, score number
+
+Only two weights (Regular + Bold) are used. The Pencil design specifies Medium (500) for logo text and Black (900) for the score, but Bold (700) is a close-enough substitute that avoids shipping two extra font files.
 
 Loaded once at module level via `fs.readFile` and cached in a module-scoped `Promise`:
 
 ```ts
+import fs from "node:fs/promises";
+import path from "node:path";
+
 const fontRegular = fs.readFile(
   path.join(process.cwd(), "src/assets/fonts/JetBrainsMono-Regular.ttf")
 );
@@ -161,6 +208,7 @@ Passed to `ImageResponse` via the `fonts` option.
 ```ts
 metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"),
 ```
+Note: The root layout uses `"use cache"` with `cacheLife("max")`, but the `metadata` export is evaluated independently from the render function, so there is no conflict.
 
 **`src/app/roasts/[slug]/page.tsx`** — update `generateMetadata`:
 ```ts
@@ -187,7 +235,7 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
 - **Completed roasts:** `Cache-Control: public, max-age=31536000, immutable` — roast data is immutable after completion, so the image never changes.
 - **Fallback (processing/failed):** `Cache-Control: public, max-age=60` — short TTL so crawlers pick up the dynamic image once the roast completes.
-- **Format:** PNG (best compatibility across social platforms).
+- **Format:** PNG (best compatibility across social platforms). Takumi's `ImageResponse` sets `Content-Type: image/png` automatically.
 
 ### Summary Truncation
 
@@ -233,7 +281,7 @@ The truncated summary is wrapped in curly double quotes: `\u201C${text}\u201D`.
 ## TODO
 
 - [ ] Install `@takumi-rs/image-response`
-- [ ] Download JetBrains Mono font files (Regular + Bold)
+- [ ] Download JetBrains Mono font files (Regular 400 + Bold 700)
 - [ ] Create `src/components/og/og-constants.ts` with colors, sizes, truncation, font loader
 - [ ] Create `src/components/og/roast-og-image.tsx` replicating Pencil design
 - [ ] Create `src/components/og/fallback-og-image.tsx` with generic branded image
@@ -243,4 +291,4 @@ The truncated summary is wrapped in curly double quotes: `\u201C${text}\u201D`.
 - [ ] Update `next.config.ts` with `serverExternalPackages`
 - [ ] Update `.env.example` with `NEXT_PUBLIC_BASE_URL`
 - [ ] Verify OG image renders correctly by visiting the route directly in a browser
-- [ ] Test with social platform debuggers (Twitter Card Validator, Facebook Debugger)
+- [ ] Test with social platform debuggers (`https://cards-dev.twitter.com/validator`, Facebook Sharing Debugger `https://developers.facebook.com/tools/debug/`)

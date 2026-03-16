@@ -27,7 +27,7 @@
 - Nao existe implementacao de OG image: sem `opengraph-image.tsx`, sem libs de geracao de imagem, sem campos `openGraph`/`twitter` no metadata.
 - `metadataBase` nao esta definido no root layout.
 - O design do Pencil inclui "Screen 4 - OG Image" (1200x630) planejado mas nunca implementado.
-- Todos os dados necessarios (score, verdictLabel, summary, language, lineCount) ja estao disponiveis no estado `completed` do roast.
+- Os dados necessarios (score, verdictLabel, summary, language, originalCode) estao disponiveis no estado `completed` do roast. Line count derivado de `originalCode.split("\n").length` (mesmo approach da UI existente).
 
 ## Requirements
 
@@ -86,9 +86,11 @@ Route handler em `src/app/roasts/[slug]/opengraph-image/route.tsx` usando Takumi
 
 ### Cor do verdict
 
+Reutiliza os mesmos thresholds de `getVerdictTone` em `src/components/roast-result/roast-result-view.tsx:174-184`:
+
 - Score < 4: `#EF4444` (red)
-- Score 4-6: `#F59E0B` (amber)
-- Score > 6: `#10B981` (green)
+- Score >= 4 e < 7: `#F59E0B` (amber)
+- Score >= 7: `#10B981` (green)
 
 ### Summary
 
