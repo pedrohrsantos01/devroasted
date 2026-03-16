@@ -53,31 +53,24 @@ export function getLineCount(code: string): number {
 
 const FONTS_DIR = path.join(process.cwd(), "src/assets/fonts");
 
-const fontRegularPromise = fs.readFile(
-  path.join(FONTS_DIR, "JetBrainsMono-Regular.ttf"),
-);
-const fontBoldPromise = fs.readFile(
-  path.join(FONTS_DIR, "JetBrainsMono-Bold.ttf"),
-);
+const fontsPromise = Promise.all([
+  fs.readFile(path.join(FONTS_DIR, "JetBrainsMono-Regular.ttf")),
+  fs.readFile(path.join(FONTS_DIR, "JetBrainsMono-Bold.ttf")),
+]).then(([regular, bold]) => [
+  {
+    name: "JetBrains Mono",
+    data: regular,
+    weight: 400 as const,
+    style: "normal" as const,
+  },
+  {
+    name: "JetBrains Mono",
+    data: bold,
+    weight: 700 as const,
+    style: "normal" as const,
+  },
+]);
 
-export async function loadFonts() {
-  const [regular, bold] = await Promise.all([
-    fontRegularPromise,
-    fontBoldPromise,
-  ]);
-
-  return [
-    {
-      name: "JetBrains Mono",
-      data: regular,
-      weight: 400 as const,
-      style: "normal" as const,
-    },
-    {
-      name: "JetBrains Mono",
-      data: bold,
-      weight: 700 as const,
-      style: "normal" as const,
-    },
-  ];
+export function loadFonts() {
+  return fontsPromise;
 }
