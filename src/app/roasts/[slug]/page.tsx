@@ -15,10 +15,19 @@ export async function generateMetadata({
 }: RoastResultPageProps): Promise<Metadata> {
   const { slug } = await params;
 
+  const ogImageUrl = `/roasts/${slug}/opengraph-image`;
+
   return {
     title: `Roast ${slug} | devroast`,
     description:
       "See the live roast state, detailed analysis, and suggested fix for this snippet.",
+    openGraph: {
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [ogImageUrl],
+    },
     robots: {
       follow: true,
       index: false,
